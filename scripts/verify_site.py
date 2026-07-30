@@ -18,12 +18,18 @@ class ReferenceParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.references: list[str] = []
+        self.has_icon = False
 
     def handle_starttag(
         self,
         tag: str,
         attrs: list[tuple[str, str | None]],
     ) -> None:
+        if tag == "link":
+            attributes = dict(attrs)
+            rel_tokens = (attributes.get("rel") or "").lower().split()
+            self.has_icon = self.has_icon or "icon" in rel_tokens
+
         wanted = REFERENCE_ATTRIBUTES.get(tag, ())
         for name, value in attrs:
             if name in wanted and value:
@@ -64,6 +70,9 @@ def verify_site(root: Path) -> list[str]:
 
     parser = ReferenceParser()
     parser.feed(index_path.read_text(encoding="utf-8"))
+
+    if not parser.has_icon:
+        errors.append("Missing favicon declaration")
 
     for reference in parser.references:
         candidate = local_reference_path(root, reference)

@@ -7,9 +7,13 @@ from scripts.verify_site import verify_site
 
 class VerifySiteTests(unittest.TestCase):
     def make_site(self, root: Path, html: str) -> None:
-        (root / "index.html").write_text(html, encoding="utf-8")
+        (root / "index.html").write_text(
+            '<link rel="icon" href="favicon.svg">' + html,
+            encoding="utf-8",
+        )
         (root / "styles.css").write_text("body {}", encoding="utf-8")
         (root / "script.js").write_text("console.log('ok');", encoding="utf-8")
+        (root / "favicon.svg").write_text("<svg></svg>", encoding="utf-8")
 
     def test_valid_site_has_no_errors(self) -> None:
         with TemporaryDirectory() as directory:
@@ -37,6 +41,17 @@ class VerifySiteTests(unittest.TestCase):
                 "Missing local reference: images/missing.png",
                 verify_site(root),
             )
+
+    def test_missing_favicon_declaration_is_reported(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "index.html").write_text("<main></main>", encoding="utf-8")
+            (root / "styles.css").write_text("body {}", encoding="utf-8")
+            (root / "script.js").write_text(
+                "console.log('ok');",
+                encoding="utf-8",
+            )
+            self.assertIn("Missing favicon declaration", verify_site(root))
 
     def test_external_and_fragment_references_are_ignored(self) -> None:
         with TemporaryDirectory() as directory:
