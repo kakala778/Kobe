@@ -2,6 +2,24 @@
 
 这是一个适合零基础学习者阅读和修改的静态个人作品集。它只使用 HTML、CSS 和原生 JavaScript，不需要安装第三方依赖。
 
+## 在线访问
+
+GitHub Pages：<https://kakala778.github.io/Kobe/>
+
+网站直接从 `main` 分支根目录发布，不需要构建步骤。
+
+## 自动检查
+
+每次推送到 `main` 或更新 Pull Request 时，GitHub Actions 会检查核心文件、本地资源引用和 JavaScript 语法。
+
+本地运行相同检查：
+
+```powershell
+python -m unittest discover -s tests -p "test_*.py" -v
+python scripts/verify_site.py
+node --check script.js
+```
+
 ## 功能
 
 - 自我介绍、作品、技能与联系方式；
